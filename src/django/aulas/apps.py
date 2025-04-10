@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class AulesConfig(AppConfig):
+class AulasConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'aules'
+    name = 'aulas'
