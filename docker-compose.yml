@@ -1,37 +1,31 @@
 services:
-  # definimos nombre
   backend:
-    # definimos imagen y como se va  a llamar
-    image: videobackend:0.1
-    # construimos la imagen
+    image: videobackend:0.3
     build: ./config/django-image
     volumes:
       - ./src/django:/usr/src/app:delegated
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_BD: ${POSTGRES_BD}
+      POSTGRES_BD: ${POSTGRES_DB}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       BD_HOST: ${BD_HOST}
-
     ports:
       - 8000:8000
     networks:
-      red:
+      - red
+
   postgres:
     image: postgres:16-bullseye
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_BD: ${POSTGRES_BD}
+      POSTGRES_BD: ${POSTGRES_DB}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - ./data:/var:/lib/postgres/data:delegated
-  ports:
-    - ${BD_PORT}:5432
-  networks:
-    red:
-
+      - ./data:/var/lib/postgresql/data:delegated
+    ports:
+      - "${BD_PORT}:5432"
+    networks:
+      - red
 
 networks:
-  red:
-
-
+  red: {}
