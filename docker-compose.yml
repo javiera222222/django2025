@@ -6,9 +6,12 @@ services:
       - ./src/django:/usr/src/app:delegated
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_BD: ${POSTGRES_DB}
+      POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       BD_HOST: ${BD_HOST}
+      DJANGO_SU_NAME: ${DJANGO_SU_NAME}
+      DJANGO_SU_EMAIL: ${DJANGO_SU_EMAIL}
+      DJANGO_SU_PASSWD: ${DJANGO_SU_PASSWD}
     ports:
       - 8000:8000
     networks:
@@ -18,7 +21,7 @@ services:
     image: postgres:16-bullseye
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_BD: ${POSTGRES_DB}
+      POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - ./data:/var/lib/postgresql/data:delegated
