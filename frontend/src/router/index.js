@@ -9,8 +9,7 @@ import { ReservaHuespedRoutes } from "./ReservaHuespedRoutes";
 import { ReservaRoutes } from "./ReservaRoutes";
 import { BienvenidaRoutes } from "./BienvenidaRoutes";
 import { ReservasRoutes } from "./ReservasRoutes";
-import Login from '../views/LoginView.vue'
-import Dashboard from '../views/DashboardView.vue'
+import { LoginRoutes } from "./LoginRoutes";
 import { useAuthStore } from '../stores/auth'
 
 const routes = [
@@ -25,15 +24,19 @@ const routes = [
     ...ReservaRoutes,
     ...BienvenidaRoutes,
     ...ReservasRoutes,
-    { path: '/', name: 'Login', component: Login },
-    { path: '/dashboard', name: 'Dashboard', component: Dashboard, meta: { requiresAuth: true } },
+    ...LoginRoutes,
 
 
 
     {
         path: "/",
-        redirect: "/Bienvenida",
+        redirect: "/Login",
     },
+
+    //{
+    //    path: "/",
+    //    redirect: "/Bienvenida",
+    //},
 
     {
         path: "/:pathMatch(.*)*",

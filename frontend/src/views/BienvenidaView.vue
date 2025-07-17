@@ -1,7 +1,7 @@
 <template>
 
     <body>
-
+        <button @click="logout">Cerrar sesión</button>
 
         <div class="texto">
             <h1>Bienvenido<br>
@@ -36,21 +36,11 @@ h1 {
 </style>
 
 
-<!--<script>
-import axios from 'axios';
+<script setup>
+import { useAuthStore } from '../stores/auth'
+const auth = useAuthStore()
 
-export default {
-    data() {
-        return {
-            Usuario: []
-        };
-    },
-    mounted() {
-        axios.get('/api/tasks/')
-            .then(response => {
-                this.tasks = response.data;
-            });
-    }
-};
-
-</script>-->
+const logout = () => {
+    auth.logout()
+}
+</script>

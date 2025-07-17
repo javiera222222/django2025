@@ -38,7 +38,6 @@ class Habitacion(models.Model):
 class Reserva(models.Model):
    id= models.IntegerField(primary_key=True)
    habitacion_id = models.ForeignKey(Habitacion, on_delete=models.CASCADE)
-   usuario_id = models.ForeignKey(Usuario, on_delete=models.CASCADE)
    cantNoches= models.IntegerField()
    desde= models.DateTimeField()
    hasta= models.DateTimeField()

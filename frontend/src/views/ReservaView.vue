@@ -1,10 +1,6 @@
 <template>
     <div>
-        <h2>Bienvenido al Dashboard</h2>
-        <button @click="logout">Cerrar sesión</button>
-
-        <br><br><br><br><br>
-
+         <button @click="logout">Cerrar sesión</button>
         <button @click="cargarreservas">Cargar reservas</button>
 
         <p v-if="loading">Cargando músicos...</p>
