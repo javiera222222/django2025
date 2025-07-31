@@ -1,7 +1,8 @@
 <template>
 
     <body>
-        <button @click="logout">Cerrar sesión</button>
+        <li><router-link v-if="!auth.access" to="/Login">Iniciar Sesion</router-link></li>
+        <li><router-link v-if="!auth.access" to="/Registrarse">Registrarse</router-link></li>
 
         <div class="texto">
             <h1>Bienvenido<br>
@@ -40,7 +41,5 @@ h1 {
 import { useAuthStore } from '../stores/auth'
 const auth = useAuthStore()
 
-const logout = () => {
-    auth.logout()
-}
+
 </script>

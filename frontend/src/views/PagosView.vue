@@ -1,16 +1,15 @@
 <template>
     <div>
-        <button @click="logout">Cerrar sesión</button>
-        <button @click="cargarpago">Cargar pago</button>
-#en esta view se ve toda la informacion de una pago especifica
+ 
         <p v-if="loading">Cargando pago...</p>
-        <ul v-else-if="pago.length > 0">
+        <ul v-else-if="pagos.length > 0">
+            <li v-for="pago in pagos" :key="pago.id">
                 {{ pago.id }} 
                 {{ pago.reserva_id }}
                 {{ pago.fecha }} 
                 {{ pago.cantidad }} 
                 {{ pago.metodoDePago }} 
-                
+            </li>  
         </ul>
         <p v-else>No se ha cargado la pago aún.</p>
 
@@ -20,29 +19,27 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useAuthStore } from '../stores/auth'
+import { ref,onMounted } from 'vue'
 import { getpago } from "../api/pago.js";
-const auth = useAuthStore()
 
-const pago = ref([])
+const pagos = ref([])
 const loading = ref(false)
 const error = ref(null)
 
-const logout = () => {
-    auth.logout()
-}
-
-const cargarpago = async () => {
+const cargarPago = async () => {
     loading.value = true
     error.value = null
-    pago.value = []
+    pagos.value = []
     try {
-        pago.value = await getpago()
+        pagos.value = await getpago()
     } catch (e) {
         error.value = 'Error al cargar el pago'
     } finally {
         loading.value = false
     }
 }
+
+onMounted(() => {
+  cargarPago()
+})
 </script>

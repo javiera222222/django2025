@@ -1,23 +1,33 @@
 <template>
-  <nav class="menu">
+  <nav v-if="auth.access" class="menu">
 
 
 
     <ul class="navegacion">
-      <li><router-link to="/Calendario">Calendario</router-link></li>
+      <li ><router-link to="/Calendario" v-if="auth.grupos.includes('propietario')">Calendario</router-link></li>
       <li><router-link to="/Habitaciones">Habitaciones</router-link></li>
       <li><router-link to="/Reservas">Reservas</router-link></li>
-      <li><router-link to="/Pagos">Registro de pagos</router-link></li>
+      <li><router-link to="/Pagos" v-if="auth.grupos.includes('propietario')">Registro de pagos</router-link></li>
     </ul>
 
-    <ul class="ingreso">
-      <li><router-link to="/InicioSesion">Iniciar Sesion</router-link></li>
-      <li><router-link to="/Registrarse">Registrarse</router-link></li>
-    </ul>
+
+       
+       <li> <button   v-if="auth.access"  @click="logout">Cerrar sesión</button></li>
+    
 
   </nav>
 
 </template>
+
+<script setup>
+import { useAuthStore } from '../stores/auth'
+const auth = useAuthStore()
+
+const logout = () => {
+    auth.logout()
+}
+
+</script>
 
 <style>
 .menu {

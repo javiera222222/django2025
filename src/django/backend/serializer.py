@@ -32,18 +32,7 @@ class HabitacionSerializer(serializers.ModelSerializer):
     alojamiento=SimpleAlojamientoSerializer( read_only=True)
     class Meta:
         model = Habitacion
-        fields = (
-            'id',
-            'nombre',
-            'tipoHabitacion_id',
-            'camasSimples',
-            'camasDobles',
-            'bañoPrivado',
-            'cocina',
-            'desayuno',
-            'precio',
-            'alojamiento'
-        )     
+        fields ='__all__'   
 
 class SimpleUsuarioSerializer(serializers.ModelSerializer):
     class Meta:
@@ -60,21 +49,7 @@ class ReservaSerializer(serializers.ModelSerializer):
     usuario=SimpleUsuarioSerializer( read_only=True)
     class Meta:
         model = Reserva
-        fields = (
-            'id',
-            'habitacion',
-            'usuario',
-            'cantNoches',
-            'desde',
-            'hasta',
-            'checkIn',
-            'checkOut',
-            'nombreHuesped',
-            'identificacion',
-            'precio',
-            'pagado'
-        )
-
+        fields = '__all__'
 class SimpleReservaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reserva
@@ -84,10 +59,4 @@ class PagoSerializer(serializers.ModelSerializer):
     reserva=SimpleReservaSerializer( read_only=True)
     class Meta:
         model = Pago
-        fields = (
-            'id',
-            'reserva',
-            'fecha',
-            'cantidad',
-            'metodoDePago'
-        )
+        fields = '__all__'

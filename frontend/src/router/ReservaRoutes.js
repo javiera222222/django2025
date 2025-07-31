@@ -1,6 +1,6 @@
 export const ReservaRoutes = [
     {
-        path: "/Reserva",
+        path: "/Reserva/:id",
         component: () => import("../views/ReservaView.vue"),
         name: "Reserva",
     },]

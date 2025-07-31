@@ -24,7 +24,7 @@ class TipoHabitacion(models.Model):
    descripcion= models.CharField(max_length=50)
 
 class Habitacion(models.Model):
-   id= models.IntegerField(primary_key=True)
+   id= models.AutoField(primary_key=True)
    nombre= models.CharField(max_length=50)
    tipoHabitacion_id=models.ForeignKey(TipoHabitacion, on_delete=models.CASCADE)
    camasSimples= models.IntegerField()
@@ -37,7 +37,7 @@ class Habitacion(models.Model):
 
 class Reserva(models.Model):
    id= models.IntegerField(primary_key=True)
-   habitacion_id = models.ForeignKey(Habitacion, on_delete=models.CASCADE)
+   habitacion = models.ForeignKey(Habitacion, on_delete=models.CASCADE)
    cantNoches= models.IntegerField()
    desde= models.DateTimeField()
    hasta= models.DateTimeField()

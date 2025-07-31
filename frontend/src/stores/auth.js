@@ -7,6 +7,7 @@ export const useAuthStore = defineStore('auth', {
         access: localStorage.getItem('access_token') || null,
         refresh: localStorage.getItem('refresh_token') || null,
         user: null,
+        grupos: JSON.parse(localStorage.getItem('user_grupos') || '[]')
     }),
     actions: {
         async login(username, password) {
@@ -14,8 +15,10 @@ export const useAuthStore = defineStore('auth', {
                 const data = await login(username, password)
                 this.access = data.access
                 this.refresh = data.refresh
+                this.grupos = data.grupos
                 localStorage.setItem('access_token', this.access)
                 localStorage.setItem('refresh_token', this.refresh)
+                localStorage.setItem('user_grupos', JSON.stringify(this.grupos))
                 router.push('/dashboard')
             } catch (error) {
                 throw new Error('Credenciales inválidas')
@@ -24,9 +27,11 @@ export const useAuthStore = defineStore('auth', {
         logout() {
             this.access = null
             this.refresh = null
+            this.grupos = []
             localStorage.removeItem('access_token')
             localStorage.removeItem('refresh_token')
             router.push('/')
+            localStorage.removeItem('user_grupos')
         },
         setAccessToken(newAccess) {
             this.access = newAccess

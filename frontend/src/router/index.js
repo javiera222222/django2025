@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { CalendarioRoutes } from "./CalendarioRoutes";
 import { HabitacionesRoutes } from "./HabitacionesRoutes";
-import { HabitacionHuespedRoutes } from "./HabitacionHuespedRoutes";
 import { HabitacionRoutes } from "./HabitacionRoutes";
+import { NuevaHabitacionRoutes } from "./NuevaHabitacionRoutes";
+import { NuevaReservaRoutes } from "./NuevaReservaRoutes";
 import { PagosRoutes } from "./PagosRoutes";
 import { RegistrarseRoutes } from "./RegistrarseRoutes";
-import { ReservaHuespedRoutes } from "./ReservaHuespedRoutes";
 import { ReservaRoutes } from "./ReservaRoutes";
 import { BienvenidaRoutes } from "./BienvenidaRoutes";
 import { ReservasRoutes } from "./ReservasRoutes";
@@ -16,11 +16,11 @@ const routes = [
 
     ...CalendarioRoutes,
     ...HabitacionesRoutes,
-    ...HabitacionHuespedRoutes,
     ...HabitacionRoutes,
+    ...NuevaHabitacionRoutes,
+    ...NuevaReservaRoutes,
     ...PagosRoutes,
     ...RegistrarseRoutes,
-    ...ReservaHuespedRoutes,
     ...ReservaRoutes,
     ...BienvenidaRoutes,
     ...ReservasRoutes,

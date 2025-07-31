@@ -3,10 +3,10 @@
         <button @click="logout">Cerrar sesión</button>
         <button @click="cargarreservas">Cargar reservas</button>
 
-        <p v-if="loading">Cargando músicos...</p>
+        <p v-if="loading">Cargando ...</p>
         <ul v-else-if="reservas.length > 0">
             <li v-for="reserva in reservas" :key="reserva.id">
-                {{ reserva.id }}
+                <router-link :to="`/ReservaHuesped/${reserva.id}`"> {{ reserva.id }}</router-link>
             </li>
         </ul>
         <p v-else>No se han cargado reservas aún.</p>
