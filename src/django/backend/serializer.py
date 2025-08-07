@@ -45,8 +45,8 @@ class SimpleHabitacionSerializer(serializers.ModelSerializer):
         fields = ('nombre','id')        
 
 class ReservaSerializer(serializers.ModelSerializer):
-    habitacion=SimpleHabitacionSerializer( read_only=True)
-    usuario=SimpleUsuarioSerializer( read_only=True)
+    habitacion = serializers.PrimaryKeyRelatedField(queryset=Habitacion.objects.all())
+   
     class Meta:
         model = Reserva
         fields = '__all__'

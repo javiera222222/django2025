@@ -50,7 +50,17 @@
           </div>
          <button  @click="editarReserva">guardar edicion</button>
          <button  @click="eliminarReserva">Eliminar</button>
+         <button @click="pagar=true">Registrar pago</button>
           </div>
+
+         <div v-if ="pagar">
+   
+   <label>Metodo de pago:
+    <input v-model="pago.metodoDePago"/>
+  </label>
+<button  @click="GuardarPago">Guardar</button>
+  
+         </div>
 
  </div>
 <div>
@@ -70,6 +80,7 @@
 import { ref,onMounted } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { getReserva,updateReserva,deleteReserva } from "../api/reserva.js";
+import { createpago } from "../api/pago.js";
 import { useRoute,useRouter } from 'vue-router'
 
 
@@ -80,7 +91,14 @@ const reserva = ref(null)
 const loading = ref(false)
 const error = ref(null)
 var editar = ref(null)
+var pagar=ref(null)
+const pago = ref({
+ reserva_id : route.params.id,
+ fecha: new Date().toISOString().slice(0, 19),
+ cantidad:0,
+ metodoDePago:  "",
 
+})
 
 
 const cargarReserva = async () => {
@@ -100,6 +118,7 @@ onMounted(() => {
   cargarReserva()
 })
 const editarReserva = async () => {
+
   try {
     await updateReserva(reserva.value.id, reserva.value)
     console.log('reserva actualizada')
@@ -114,11 +133,27 @@ const eliminarReserva = async () => {
   if (confirm('¿Estás segura/o de eliminar esta habitación?')) {
     try {
       await deleteReserva(route.params.id)
-      alert('Habitación eliminada correctamente')
+      console.log('Habitación eliminada correctamente')
       router.push('/Habitaciones') // redirige a la lista
     } catch (e) {
       error.value = 'Error al eliminar la habitación'
     }
   }
 }
+const GuardarPago = async () => {
+  pago.value.cantidad = reserva.value.precio
+  delete pago.value.id;
+    try {
+      await createpago(pago.value)
+console.log("Pago registrado exitosamente")
+    } catch (err) {
+      
+      error.value = 'Error al guardar la informacion de pago'
+    }
+      
+      
+
+}
+
+
 </script>

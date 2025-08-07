@@ -8,11 +8,12 @@
       <li><router-link to="/Habitaciones">Habitaciones</router-link></li>
       <li><router-link to="/Reservas">Reservas</router-link></li>
       <li><router-link to="/Pagos" v-if="auth.grupos.includes('propietario')">Registro de pagos</router-link></li>
+    <li> <button @click="logout">Cerrar sesión</button></li>
     </ul>
 
 
        
-       <li> <button   v-if="auth.access"  @click="logout">Cerrar sesión</button></li>
+       
     
 
   </nav>

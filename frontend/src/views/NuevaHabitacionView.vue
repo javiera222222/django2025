@@ -68,7 +68,7 @@ const crearHabitacion = async () => {
  const habitacionCreada = await createhabitacion(habitacion.value)
   router.push(`/habitacion/${habitacionCreada.id}`)
   } catch (err) {
-    console.error('Error al crear la habitación:', err)
+    error.value = 'Error al crear la habitacion'
   }
 }
 

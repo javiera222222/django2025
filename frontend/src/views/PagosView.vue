@@ -20,7 +20,7 @@
 
 <script setup>
 import { ref,onMounted } from 'vue'
-import { getpago } from "../api/pago.js";
+import { getpagos } from "../api/pago.js";
 
 const pagos = ref([])
 const loading = ref(false)
@@ -31,7 +31,7 @@ const cargarPago = async () => {
     error.value = null
     pagos.value = []
     try {
-        pagos.value = await getpago()
+        pagos.value = await getpagos()
     } catch (e) {
         error.value = 'Error al cargar el pago'
     } finally {

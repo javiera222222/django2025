@@ -64,7 +64,7 @@
 
   </div>
 
- <button v-if="auth.grupos.includes('cliente')"  @click="irAReservaNueva">Reservar esta habitación</button>
+ <button   @click="irAReservaNueva">Reservar esta habitación</button>
 
    
   
