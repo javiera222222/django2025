@@ -30,13 +30,8 @@ const routes = [
 
     {
         path: "/",
-        redirect: "/Login",
+        redirect: "/Bienvenida",
     },
-
-    //{
-    //    path: "/",
-    //    redirect: "/Bienvenida",
-    //},
 
     {
         path: "/:pathMatch(.*)*",

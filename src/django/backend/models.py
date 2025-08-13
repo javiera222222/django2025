@@ -1,32 +1,18 @@
 from django.db import models
 
-# Create your models here.
-class Usuario(models.Model):
-   id = models.AutoField(primary_key=True)
-   nombre = models.CharField(max_length=50)
-   mail = models.CharField(max_length=50)
-   contraseña = models.CharField(max_length=50)
-   fotoDePerfil = models.ImageField
-
-class TipoAlojamiento(models.Model):
-   id  = models.AutoField(primary_key=True)
-   descripcion = models.CharField(max_length=50)
-
-
 class Alojamiento(models.Model):
-   id = models.AutoField(primary_key=True)
-   nombre = models.CharField(max_length=50)
-   direccion = models.CharField(max_length=50)  
-   TipoAlojamiento_id = models.ForeignKey(TipoAlojamiento, on_delete=models.CASCADE)
-   
-class TipoHabitacion(models.Model):
-   id= models.AutoField(primary_key=True)
-   descripcion= models.CharField(max_length=50)
+    id = models.AutoField(primary_key=True)
+    nombre = models.CharField(max_length=50)
+    direccion = models.CharField(max_length=50)
+    tipoAlojamiento = models.CharField(max_length=50, null=True)  
+    ubicacion = models.CharField(max_length=50, null=True)  
+
+
 
 class Habitacion(models.Model):
    id= models.AutoField(primary_key=True)
    nombre= models.CharField(max_length=50)
-   tipoHabitacion_id=models.ForeignKey(TipoHabitacion, on_delete=models.CASCADE)
+   tipoHabitacion = models.CharField(max_length=50, null=True)  
    camasSimples= models.IntegerField()
    camasDobles= models.IntegerField()
    bañoPrivado=models.BooleanField()

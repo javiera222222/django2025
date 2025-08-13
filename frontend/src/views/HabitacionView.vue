@@ -6,13 +6,18 @@
       <div v-if="!editar">
       <p>Nombre: {{ habitacion.nombre }}</p>
       <p>Precio: ${{ habitacion.precio }}</p>
-      <p>Tipo: {{ habitacion.tipoHabitacion_id }}</p>
+      <p>Tipo: {{ habitacion.tipoHabitacion}}</p>
       <p>Camas simples: {{ habitacion.camasSimples }}</p>
       <p>Camas dobles: {{ habitacion.camasDobles }}</p>
       <p>Baño privado: {{ habitacion.bañoPrivado}}</p>
       <p>Cocina: {{ habitacion.cocina}}</p>
       <p>Desayuno: {{ habitacion.desayuno }}</p>
-      <p>Alojamiento ID: {{ habitacion.alojamiento_id }}</p>
+      <p>Sobre el alojamiento:</p>
+<p v-if="alojamiento">Alojamiento: {{ alojamiento.nombre }}</p>
+<p v-if="alojamiento">Ubicacion: {{ alojamiento.ubicacion }}</p>
+<p v-if="alojamiento">Dirección: {{ alojamiento.direccion }}</p>
+<p v-if="alojamiento">Tipo de Alojamiento: {{ alojamiento.tipoAlojamiento }}</p>
+
 </div>
 
   <button v-if="auth.grupos.includes('propietario') && !editar" @click="editar=true">editar</button>
@@ -26,7 +31,7 @@
   </label>
 
   <label>Tipo:
-    <input v-model="habitacion.tipoHabitacion_id" />
+    <input v-model="habitacion.tipoHabitacion" />
   </label>
 
   <label>Camas simples:
@@ -76,7 +81,9 @@ import { ref,onMounted } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { gethabitacion,updatehabitacion,deletehabitacion} from "../api/habitacion.js";
 import { useRoute,useRouter } from 'vue-router'
+import { getAlojamiento } from "../api/alojamiento.js" 
 
+const alojamiento = ref(null) 
 const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
@@ -91,6 +98,7 @@ const cargarHabitacion = async () => {
     habitacion.value = []
     try {
         habitacion.value = await gethabitacion(route.params.id)
+        alojamiento.value = await getAlojamiento(habitacion.value.alojamiento_id)
     } catch (e) {
         error.value = 'Error al cargar habitaciones'
     } finally {
@@ -110,6 +118,9 @@ const editarHabitacion = async () => {
     console.log('Habitación actualizada')
   } catch (err) {
     console.error('Error al actualizar la habitación:', err)
+    console.error('Error al guardar el pago:', err.response?.data || err.message)
+      console.error('Respuesta completa del error:', err)
+      console.table(err.response.data)
   }
 
     editar.value=false;

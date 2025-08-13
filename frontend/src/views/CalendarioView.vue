@@ -1,34 +1,27 @@
 <template>
     <div>
-        <button @click="logout">Cerrar sesión</button>
-        <button @click="cargarreservas">Cargar reservas</button>
 
-        <p v-if="loading">Cargando ...</p>
-        <ul v-else-if="reservas.length > 0">
+        <ul v-if="reservas.length > 0">
             <li v-for="reserva in reservas" :key="reserva.id">
-                <router-link :to="`/ReservaHuesped/${reserva.id}`"> {{ reserva.id }}</router-link>
+                <router-link :to="`/Reserva/${reserva.id}`"> {{ reserva.id }}</router-link>
             </li>
         </ul>
-        <p v-else>No se han cargado reservas aún.</p>
+        
 
         <p v-if="error" style="color: red">{{ error }}</p>
+ <v-btn>Button</v-btn>
 
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useAuthStore } from '../stores/auth'
+import { ref,onMounted } from 'vue'
 import { getReservas } from "../api/reserva.js";
-const auth = useAuthStore()
 
 const reservas = ref([])
 const loading = ref(false)
 const error = ref(null)
 
-const logout = () => {
-    auth.logout()
-}
 
 const cargarreservas = async () => {
     loading.value = true
@@ -42,4 +35,9 @@ const cargarreservas = async () => {
         loading.value = false
     }
 }
+
+onMounted(() => {
+  cargarreservas()
+})
+
 </script>

@@ -3,7 +3,7 @@
         <p v-if="loading">Cargando habitaciones...</p>
         <ul v-else-if="habitaciones.length > 0">
             <li v-for="habitacion in habitaciones" :key="habitacion.id">
-            <router-link :to="`/Habitacion/${habitacion.id}`">{{ habitacion.nombre }}  {{ habitacion.precio }}</router-link>
+            <router-link :to="`/Habitacion/${habitacion.id}`">{{ habitacion.nombre }}  {{ habitacion.precio }} {{ habitacion.alojamiento_id.direccion }}</router-link>
                 
             </li>
         </ul>
