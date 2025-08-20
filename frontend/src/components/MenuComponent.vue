@@ -1,7 +1,6 @@
 <template>
+  <VAppBar>
   <nav v-if="auth.access" class="menu">
-
-
 
     <ul class="navegacion">
       <li ><router-link to="/Calendario" v-if="auth.grupos.includes('propietario')">Calendario</router-link></li>
@@ -10,14 +9,8 @@
       <li><router-link to="/Pagos" v-if="auth.grupos.includes('propietario')">Registro de pagos</router-link></li>
     <li> <button @click="logout">Cerrar sesión</button></li>
     </ul>
-
-
-       
-       
-    
-
   </nav>
-
+</VAppBar>
 </template>
 
 <script setup>

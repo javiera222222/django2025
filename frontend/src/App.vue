@@ -1,7 +1,10 @@
 <template>
-
+<VApp>
   <MenuComponent />
+  <VMain>
   <RouterView></RouterView>
+</VMain>
+  </VApp>
 </template>
 
 <script>

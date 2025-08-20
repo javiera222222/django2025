@@ -1,13 +1,27 @@
 <template>
     <div>
         <p v-if="loading">Cargando habitaciones...</p>
-        <ul v-else-if="habitaciones.length > 0">
-            <li v-for="habitacion in habitaciones" :key="habitacion.id">
-            <router-link :to="`/Habitacion/${habitacion.id}`">{{ habitacion.nombre }}  {{ habitacion.precio }} {{ habitacion.alojamiento_id.direccion }}</router-link>
-                
-            </li>
-        </ul>
-        <p v-else>No se han cargado habitaciones aún.</p>
+
+<v-list
+  :lines="false"
+  density="compact"
+  nav
+>
+  <v-list-item
+    v-for="habitacion in habitaciones"
+    :key="habitacion.id"
+    :to="`/Habitacion/${habitacion.id}`"
+    color="primary"
+  >
+    <v-list-item-title>
+      {{ habitacion.nombre }}
+    </v-list-item-title>
+    <v-list-item-subtitle>
+      ${{ habitacion.precio }} - {{ habitacion.alojamiento_id.direccion }}
+    </v-list-item-subtitle>
+  </v-list-item>
+</v-list>
+
 
         <p v-if="error" style="color: red">{{ error }}</p>
 

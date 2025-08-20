@@ -1,45 +1,114 @@
 <template>
-    <div>
- 
-        <p v-if="loading">Cargando pago...</p>
-        <ul v-else-if="pagos.length > 0">
-            <li v-for="pago in pagos" :key="pago.id">
-                {{ pago.id }} 
-                {{ pago.reserva_id }}
-                {{ pago.fecha }} 
-                {{ pago.cantidad }} 
-                {{ pago.metodoDePago }} 
-            </li>  
-        </ul>
-        <p v-else>No se ha cargado la pago aún.</p>
+  <div class="pagos-container">
+    <!-- Botón que abre el calendario -->
+   <VBtn color="primary" @click="mostrarCalendario = true">
+  {{ formatearFecha(fechaSeleccionada) }}
+</VBtn>
 
-        <p v-if="error" style="color: red">{{ error }}</p>
+<VDialog v-model="mostrarCalendario" max-width="350">
+  <VCard>
+    <VDatePicker
+      v-model="fechaSeleccionada"
+      locale="es"
+      :show-current="true"
+      @update:model-value="filtrarPagos"
+    />
+    <VCardActions>
+      <VBtn text color="primary" @click="mostrarCalendario = false">Cerrar</VBtn>
+    </VCardActions>
+  </VCard>
+</VDialog>
 
-    </div>
+
+    <!-- Tabla de pagos -->
+    <v-table class="ma-4 pa-4">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Reserva</th>
+          <th>Fecha</th>
+          <th>Cantidad</th>
+          <th>Método de Pago</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="pago in pagosFiltrados" :key="pago.id">
+          <td>{{ pago.id }}</td>
+          <td>{{ pago.reserva_id }}</td>
+          <td>{{ formatearFecha(pago.fecha) }}</td>
+          <td>{{ pago.cantidad }}</td>
+          <td>{{ pago.metodoDePago }}</td>
+        </tr>
+        <tr v-if="pagosFiltrados.length === 0">
+          <td colspan="5">No hay pagos para la fecha seleccionada.</td>
+        </tr>
+      </tbody>
+    </v-table>
+
+    <p v-if="error" style="color: red">{{ error }}</p>
+  </div>
 </template>
 
 <script setup>
-import { ref,onMounted } from 'vue'
-import { getpagos } from "../api/pago.js";
+import { ref, onMounted } from "vue"
+import { VBtn, VDatePicker, VCard } from "vuetify/components"
+import { getpagos } from "@/api/pago"
 
 const pagos = ref([])
-const loading = ref(false)
+const pagosFiltrados = ref([])
+const fechaSeleccionada = ref(new Date())
+const mostrarCalendario = ref(false)
 const error = ref(null)
+const loading = ref(false)
 
-const cargarPago = async () => {
-    loading.value = true
+
+// Formatear fecha a formato legible
+const formatearFecha = (fecha) => {
+  if (!fecha) return ""
+  return new Date(fecha).toLocaleDateString("es-ES", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  })
+}
+
+// Filtrar pagos por fecha seleccionada
+const filtrarPagos = () => {
+  pagosFiltrados.value = pagos.value.filter((pago) => {
+    const pagoFecha = new Date(pago.fecha)
+    const fechaSel = fechaSeleccionada.value
+
+    return (
+      pagoFecha.getUTCFullYear() === fechaSel.getFullYear() &&
+      pagoFecha.getUTCMonth() === fechaSel.getMonth() &&
+      pagoFecha.getUTCDate() === fechaSel.getDate()
+    )
+  })
+}
+
+
+// Simulación de carga de pagos desde la API
+const cargarPagos = async () => {
+ loading.value = true
     error.value = null
     pagos.value = []
     try {
         pagos.value = await getpagos()
     } catch (e) {
-        error.value = 'Error al cargar el pago'
+        error.value = 'Error al cargar pagos'
     } finally {
         loading.value = false
     }
 }
 
 onMounted(() => {
-  cargarPago()
+  cargarPagos()
 })
 </script>
+
+<style scoped>
+.pagos-container {
+  max-width: 900px;
+  margin: auto;
+}
+</style>

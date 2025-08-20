@@ -1,18 +1,17 @@
 <template>
-  <div>
     <h2>Registrarse</h2>
 
-    <div v-if="!mostrarFormularioAlojamiento">
+    <VForm v-if="!mostrarFormularioAlojamiento">
       <label>Nombre de usuario:
-        <input v-model="usuario.username" required />
+        <VTextField v-model="usuario.username" required />
       </label>
 
       <label>Email:
-        <input type="email" v-model="usuario.email" required />
+        <VTextField type="email" v-model="usuario.email" required />
       </label>
 
       <label>Contraseña:
-        <input type="password" v-model="usuario.password" required />
+        <VTextField type="password" v-model="usuario.password" required />
       </label>
 
       <label>Tipo de cuenta:
@@ -23,32 +22,32 @@
       </label>
 
       <button @click="registrar">Guardar</button>
-    </div>
+    </VForm>
 
     <!-- Formulario de Alojamiento solo si es propietario -->
-    <div v-else>
+    <VForm v-else>
       <h3>Crear Alojamiento</h3>
 
       <label>Nombre del alojamiento:
-        <input v-model="alojamiento.nombre" required />
+        <VTextField v-model="alojamiento.nombre" required />
       </label>
 
         <label>Ubicacion:
-        <input v-model="alojamiento.ubicacion" required />
+        <VTextField v-model="alojamiento.ubicacion" required />
       </label>
 
 
       <label>Dirección:
-        <input v-model="alojamiento.direccion" required />
+        <VTextField v-model="alojamiento.direccion" required />
       </label>
 
       <label>Tipo de alojamiento:
-  <input v-model="alojamiento.tipoAlojamiento" required />
+  <VTextField v-model="alojamiento.tipoAlojamiento" required />
 </label>
 
       <button @click="guardarAlojamiento">Guardar Alojamiento</button>
-    </div>
-  </div>
+    
+    </VForm>
 </template>
 
 
@@ -57,6 +56,7 @@ import { ref } from 'vue'
 import { registrarUsuario } from '../api/registrarse.js'
 import { createAlojamiento } from '../api/alojamiento.js'
 import { useRouter } from 'vue-router'
+import { VForm, VTextField } from 'vuetify/lib/components/index.js'
 
 const router = useRouter()
 
