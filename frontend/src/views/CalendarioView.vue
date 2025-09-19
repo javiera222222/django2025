@@ -1,43 +1,35 @@
 <template>
-    <div>
-
-        <ul v-if="reservas.length > 0">
-            <li v-for="reserva in reservas" :key="reserva.id">
-                <router-link :to="`/Reserva/${reserva.id}`"> {{ reserva.id }}</router-link>
-            </li>
-        </ul>
-        
-
-        <p v-if="error" style="color: red">{{ error }}</p>
- <v-btn>Button</v-btn>
-
-    </div>
+  <v-sheet height="100vh">
+    <v-calendar
+      v-model="focus"
+      :events="events"
+      type="month"
+      :event-color="() => '#94618e'"
+    >
+      <template #event="slotProps">
+        <div class="event-link">{{ slotProps.event.name }}</div>
+      </template>
+    </v-calendar>
+  </v-sheet>
 </template>
 
 <script setup>
-import { ref,onMounted } from 'vue'
-import { getReservas } from "../api/reserva.js";
+import { ref } from 'vue'
 
-const reservas = ref([])
-const loading = ref(false)
-const error = ref(null)
+const focus = ref(new Date().toISOString().substr(0, 10))
 
-
-const cargarreservas = async () => {
-    loading.value = true
-    error.value = null
-    reservas.value = []
-    try {
-        reservas.value = await getReservas()
-    } catch (e) {
-        error.value = 'Error al cargar reservas'
-    } finally {
-        loading.value = false
-    }
-}
-
-onMounted(() => {
-  cargarreservas()
-})
-
+const events = ref([
+  { id: 1, name: 'Habitación 101 - Juan', start: '2025-09-10', end: '2025-09-12' },
+  { id: 2, name: 'Habitación 102 - Ana', start: '2025-09-11', end: '2025-09-15' }
+])
 </script>
+
+<style scoped>
+.event-link {
+  background-color: #94618e;
+  color: #f4decb;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+</style>

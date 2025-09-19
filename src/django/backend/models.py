@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+
 
 class Alojamiento(models.Model):
     id = models.AutoField(primary_key=True)
@@ -6,8 +8,7 @@ class Alojamiento(models.Model):
     direccion = models.CharField(max_length=50)
     tipoAlojamiento = models.CharField(max_length=50, null=True)  
     ubicacion = models.CharField(max_length=50, null=True)  
-
-
+    user_id = models.ForeignKey( settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
 
 class Habitacion(models.Model):
    id= models.AutoField(primary_key=True)
@@ -19,7 +20,10 @@ class Habitacion(models.Model):
    cocina =models.BooleanField()
    desayuno=models.BooleanField()
    precio= models.DecimalField(max_digits=10, decimal_places=2)
-   alojamiento_id = models.ForeignKey(Alojamiento, on_delete=models.CASCADE)   
+   alojamiento_id = models.ForeignKey(Alojamiento, on_delete=models.CASCADE)  
+   imagen = models.ImageField( null=True, blank=True)  
+   usuario = models.ForeignKey( settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
+
 
 class Reserva(models.Model):
    id= models.AutoField(primary_key=True)
@@ -33,6 +37,7 @@ class Reserva(models.Model):
    identificacion= models.CharField(max_length=50)
    precio= models.DecimalField(max_digits=10, decimal_places=2)
    pagado= models.BooleanField()
+
 
 class Pago(models.Model):
    id= models.AutoField(primary_key=True)

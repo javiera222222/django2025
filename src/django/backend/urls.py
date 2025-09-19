@@ -1,4 +1,5 @@
 from django.urls import path
+
 from .views  import AlojamientoList,AlojamientoDetail,HabitacionList,HabitacionDetail,ReservaList,ReservaDetail,PagoList,PagoDetail
 
 urlpatterns = [
@@ -11,9 +12,6 @@ urlpatterns = [
     path('api/reserva/<int:pk>/',ReservaDetail.as_view()),
     path('api/pago/',PagoList.as_view()),
     path('api/pago/<int:pk>/',PagoDetail.as_view()),]
-    
-    
-    
     
     
     

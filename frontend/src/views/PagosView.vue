@@ -110,5 +110,49 @@ onMounted(() => {
 .pagos-container {
   max-width: 900px;
   margin: auto;
+  background-color: #0A1828; /* azul oscuro */
+  color: #F9F9F9; /* texto claro */
+  padding: 20px;
+  border-radius: 12px;
+}
+
+/* Botones */
+.v-btn {
+  background-color: #BFA181 !important; /* dorado */
+  color: #0A1828 !important; /* contraste */
+  font-weight: bold;
+}
+.v-btn:hover {
+  background-color: #178582 !important; /* turquesa */
+  color: #fff !important;
+}
+
+/* Tabla */
+.v-table thead {
+  background-color: #0A1828;
+}
+.v-table thead th {
+  color: #BFA181;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.v-table tbody tr:nth-child(even) {
+  background-color: #111e36; /* tono más claro del azul */
+}
+.v-table tbody td {
+  color: #F9F9F9;
+}
+
+/* Cantidad */
+.v-table tbody td:nth-child(4) {
+  font-weight: bold;
+  color: #BFA181;
+}
+
+/* Mensaje vacío */
+.empty-msg {
+  text-align: center;
+  padding: 16px;
+  color: #BFA181;
 }
 </style>

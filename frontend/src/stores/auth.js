@@ -19,7 +19,7 @@ export const useAuthStore = defineStore('auth', {
                 localStorage.setItem('access_token', this.access)
                 localStorage.setItem('refresh_token', this.refresh)
                 localStorage.setItem('user_grupos', JSON.stringify(this.grupos))
-                router.push('/dashboard')
+                router.push('/Bienvenida')
             } catch (error) {
                 throw new Error('Credenciales inválidas')
             }

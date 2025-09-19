@@ -30,6 +30,7 @@ const cargarReservas = async () => {
     reservas.value = []
     try {
         reservas.value = await getReservas()
+
     } catch (e) {
         error.value = 'Error al cargar reservas'
     } finally {

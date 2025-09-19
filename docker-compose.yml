@@ -1,6 +1,6 @@
 services:
   backend:
-    image: videobackend:0.6
+    image: videobackend:0.10
     build: ./config/django-image
     volumes:
       - ./src/django:/usr/src/app:delegated

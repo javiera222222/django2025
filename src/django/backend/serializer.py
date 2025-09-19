@@ -29,18 +29,20 @@ class SimpleHabitacionSerializer(serializers.ModelSerializer):
         fields = ('nombre','id')        
 
 class ReservaSerializer(serializers.ModelSerializer):
-    habitacion = serializers.PrimaryKeyRelatedField(queryset=Habitacion.objects.all())
-   
+    habitacion = HabitacionSerializer(read_only=True)   # 👈 detalle completo
+    habitacion_id = serializers.PrimaryKeyRelatedField( # 👈 lo usás para crear
+        queryset=Habitacion.objects.all(),
+        source="habitacion",
+        write_only=True
+    )
+
     class Meta:
         model = Reserva
         fields = '__all__'
-class SimpleReservaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Reserva
-        fields = ('nombre','id')        
+      
 
 class PagoSerializer(serializers.ModelSerializer):
-    reserva=SimpleReservaSerializer( read_only=True)
+    reserva=ReservaSerializer( read_only=True)
     class Meta:
         model = Pago
         fields = '__all__'

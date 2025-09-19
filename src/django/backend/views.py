@@ -7,6 +7,7 @@ from django.template import Template,Context
 from django.template.loader import get_template
 from .models import Alojamiento,Habitacion,Reserva,Pago
 from .serializer import AlojamientoSerializer,HabitacionSerializer,ReservaSerializer,PagoSerializer
+from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status 
@@ -45,6 +46,32 @@ class ReservaDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset =Reserva.objects.all()
     serializer_class=ReservaSerializer 
     permission_classes=(IsAuthenticated,)   
+
+
+class ReservaViewSet(viewsets.ModelViewSet):
+    queryset = Reserva.objects.all()
+    serializer_class = ReservaSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        # si es propietario -> solo reservas de sus alojamientos
+        if user.groups.filter(name="propietario").exists():
+            return Reserva.objects.filter(
+                habitacion__alojamiento_id__user_id=user
+            )
+
+        # si es cliente -> mostrar solo reservas que hizo él
+        if user.groups.filter(name="cliente").exists():
+            # ⚠️ tu modelo Reserva no tiene campo usuario todavía,
+            # así que aquí no se puede filtrar por cliente.
+            # Si planeás agregarlo, quedaría así:
+            return Reserva.objects.filter(usuario=user)
+
+
+        # si no cumple nada, no devolver nada
+        return Reserva.objects.none()
 
 class PagoList(generics.ListCreateAPIView):
     queryset =Pago.objects.all()

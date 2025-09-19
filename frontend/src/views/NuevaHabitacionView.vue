@@ -1,5 +1,5 @@
 <template>
-      <label>Nombre:
+  <label>Nombre:
     <input v-model="habitacion.nombre" />
   </label>
 
@@ -34,20 +34,36 @@
   <label>Alojamiento ID:
     <input v-model="habitacion.alojamiento_id" />
   </label>
-    <button  @click="crearHabitacion">guardar datos</button>
-   
+
+  <!-- Imagen -->
+ 
+
+  <label>Imagen de la habitación:
+  <input type="file" @change="handleFileChange" />
+</label>
 
 
-    <p v-if="error" style="color: red">{{ error }}</p>
+  <div v-if="preview">
+    <p>Vista previa:</p>
+    <img :src="preview" alt="Vista previa" style="max-width: 200px;" />
+  </div>
 
+  <button @click="crearHabitacion">Guardar datos</button>
+
+  <p v-if="error" style="color: red">{{ error }}</p>
 </template>
 
 <script setup>
-import { ref} from 'vue'
-import { createhabitacion} from "../api/habitacion.js";
+import { ref } from 'vue'
+import { createhabitacion } from "../api/habitacion.js"
 import { useRouter } from 'vue-router'
 
 
+const archivoImagen = ref(null);
+// Cuando el usuario selecciona un archivo
+const handleFileChange = (event) => {
+  archivoImagen.value = event.target.files[0]; // guardamos el archivo
+};
 const router = useRouter()
 const error = ref(null)
 const habitacion = ref({
@@ -61,17 +77,26 @@ const habitacion = ref({
   desayuno: false,
   alojamiento_id: 1,
 })
+const imagenFile = ref(null)
+const preview = ref(null)
+
 
 
 const crearHabitacion = async () => {
   try {
- const habitacionCreada = await createhabitacion(habitacion.value)
-  router.push(`/habitacion/${habitacionCreada.id}`)
+    const formData = new FormData()
+    for (const key in habitacion.value) {
+      formData.append(key, habitacion.value[key])
+    }
+    if (imagenFile.value) {
+      formData.append("imagen", imagenFile.value)
+    }
+
+    const habitacionCreada = await createhabitacion(formData, true) 
+    router.push(`/habitacion/${habitacionCreada.id}`)
   } catch (err) {
-    error.value = 'Error al crear la habitacion'
+    error.value = 'Error al crear la habitación'
   }
 }
-
-
 </script>
 

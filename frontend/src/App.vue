@@ -1,21 +1,25 @@
 <template>
+  <head>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  </head>
 <VApp>
+  <nav v-if="auth.access">
   <MenuComponent />
+  </nav>
   <VMain>
   <RouterView></RouterView>
 </VMain>
   </VApp>
 </template>
 
-<script>
+<script setup>
 import MenuComponent from './components/MenuComponent.vue'
+import { useAuthStore } from './stores/auth'
+const auth = useAuthStore()
 
-export default {
-  name: 'App',
-  components: {
-    MenuComponent
-  }
-}
-</script>
+
+</script >
+
 
 <style></style>
