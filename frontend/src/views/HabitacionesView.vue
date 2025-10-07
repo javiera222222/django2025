@@ -1,104 +1,73 @@
 <template>
   <div class="habitaciones-container">
-    <p v-if="loading" class="loading-text">Cargando habitaciones...</p>
+    <h2 class="page-title">Nuestras Habitaciones</h2>
 
-    <v-row dense>
-      <v-col
-        v-for="habitacion in habitaciones"
-        :key="habitacion.id"
-        cols="12"
-        sm="6"
-        md="4"
+    <div class="filtro-container">
+      <label for="ubicacion">Filtrar por ubicación:</label>
+      <input 
+        id="ubicacion" 
+        v-model="filtroUbicacion" 
+        type="text" 
+        placeholder="Escribe una ciudad o dirección..." 
+      />
+    </div>
+
+    <div class="habitaciones-grid">
+      <div 
+        v-for="habitacion in habitacionesFiltradas" 
+        :key="habitacion.id" 
+        class="habitacion-card"
       >
-        <v-card class="habitacion-card" outlined>
-          <!-- Nombre y tipo -->
-          <v-card-title class="habitacion-nombre">
-            {{ habitacion.nombre }}
-            <span class="habitacion-tipo" v-if="habitacion.tipoHabitacion">- {{ habitacion.tipoHabitacion }}</span>
-          </v-card-title>
+       <img :src="habitacion.fotoPrincipal" alt="Foto habitación" class="habitacion-img"/>
+      
 
-          <!-- Info rápida -->
-          <v-card-text class="habitacion-info">
-            <!-- Icono de habitación / camas -->
+<Button label="Show" icon="pi pi-external-link" @click="displayBasic = true"></Button>
 
+        <div class="habitacion-info">
+          <h3 class="habitacion-nombre">{{ habitacion.nombre }}</h3>
+          <p class="habitacion-precio">Precio por noche: ${{ habitacion.precio }}</p>
+          <p v-if="habitacion.alojamiento">
+            Ubicación: {{ habitacion.alojamiento?.direccion }} - {{ habitacion.alojamiento?.ubicacion }}
+          </p>
+          <button @click="verDetalle(habitacion.id)" class="btn-guardar">
+            Ver detalles
+          </button>
+           
 
-  <div class="habitacion-camas">
-  <img src="../../public/camas.png" alt="cama Logo" class="logo-img" />
+        
+    </div>
 
-  <span v-if="habitacion.camasSimples > 0">
-    {{ habitacion.camasSimples }} cama{{ habitacion.camasSimples > 1 ? 's' : '' }} simple{{ habitacion.camasSimples > 1 ? 's' : '' }}
-  </span>
-
-  <span v-if="habitacion.camasDobles > 0">
-    {{ habitacion.camasSimples > 0 ? ' & ' : '' }}
-    {{ habitacion.camasDobles }} cama{{ habitacion.camasDobles > 1 ? 's' : '' }} doble{{ habitacion.camasDobles > 1 ? 's' : '' }}
-  </span>
-</div>
-
-
-<!-- Icono de baño -->
-<div>
-  <img src="../../public/ducha.png" alt="baño Logo" class="logo-img" />
-  {{ habitacion.bañoPrivado ? 'Baño privado' : 'Baño compartido' }}
-</div>
-
-<!-- Icono de cocina -->
-<div v-if="habitacion.cocina">
-  <img src="../../public/frito.png" alt="cocina Logo" class="logo-img" />
-  Cocina disponible
-</div>
-
-<!-- Icono de desayuno -->
-<div v-if="habitacion.desayuno">
-  <img src="../../public/desayuno.png" alt="desayuno Logo" class="logo-img" />
-  Desayuno incluido
-</div>
-
-<!-- Icono de ubicación -->
-<div>
-  <img src="../../public/mapa.png" alt="ubicacion Logo" class="logo-img" />
-  {{ habitacion.alojamiento?.direccion }} - {{ habitacion.alojamiento?.ubicacion }}
-</div>
-
-          </v-card-text>
-
-          <!-- Precio -->
-          <v-card-subtitle class="habitacion-precio">
-            ${{ habitacion.precio }}
-          </v-card-subtitle>
-
-          <!-- Botón ver detalle -->
-          <v-card-actions>
-            <router-link :to="`/Habitacion/${habitacion.id}`">
-              <v-btn class="detalle-btn" text>Ver detalle</v-btn>
-            </router-link>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <p v-if="error" class="error-text">{{ error }}</p>
-
-    <router-link
-      v-if="auth.grupos.includes('propietario')"
-      to="/NuevaHabitacion"
-      class="nueva-habitacion-btn"
-    >
-      Nueva Habitación
-    </router-link>
+    <p v-if="error" class="error">{{ error }}</p>
   </div>
+  </div> </div>
+  <div v-if="auth.grupos.includes('propietario')">
+        <button @click="Crear"  class="btn-guardar">Crear nueva habitacion </button>
+      </div>
+ 
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
-import { useAuthStore } from "../stores/auth"
+import { ref, onMounted, computed } from "vue"
 import { gethabitaciones } from "../api/habitacion.js"
 import { getAlojamiento } from "@/api/alojamiento"
+import { useRouter } from "vue-router"
+import { getfoto } from "@/api/fotos";
+import { useAuthStore } from "../stores/auth";
 
-const auth = useAuthStore()
+const router = useRouter()
 const habitaciones = ref([])
+const filtroUbicacion = ref("")
 const loading = ref(false)
 const error = ref(null)
+const auth = useAuthStore();
+
+const Crear =async () => {
+  router.push(`/NuevaHabitacion`)
+}
+
+const verDetalle = (id) => {
+  router.push(`/Habitacion/${id}`)
+}
 
 const cargarhabitaciones = async () => {
   loading.value = true
@@ -108,8 +77,10 @@ const cargarhabitaciones = async () => {
     habitaciones.value = await gethabitaciones()
     for (let h of habitaciones.value) {
       try {
-        const alojamiento = await getAlojamiento(h.alojamiento_id)
+        const alojamiento = await getAlojamiento(h.alojamiento)
         h.alojamiento = alojamiento
+         const fotos = await getfoto(h.id);
+        h.fotoPrincipal = fotos.length > 0 ? fotos[0].imagen : null;
       } catch (err) {
         console.error("Error cargando alojamiento", err)
       }
@@ -121,114 +92,126 @@ const cargarhabitaciones = async () => {
   }
 }
 
+const habitacionesFiltradas = computed(() => {
+  if (!filtroUbicacion.value) return habitaciones.value
+
+  const term = filtroUbicacion.value.toLowerCase()
+
+  return habitaciones.value
+    .filter(h =>
+      h.alojamiento?.ubicacion?.toLowerCase().includes(term) ||
+      h.alojamiento?.direccion?.toLowerCase().includes(term)
+    )
+    .sort((a, b) => {
+      const aUbic = a.alojamiento?.ubicacion?.toLowerCase() || ""
+      const bUbic = b.alojamiento?.ubicacion?.toLowerCase() || ""
+      if (aUbic.startsWith(term) && !bUbic.startsWith(term)) return -1
+      if (!aUbic.startsWith(term) && bUbic.startsWith(term)) return 1
+      return 0
+    })
+})
+
 onMounted(() => {
   cargarhabitaciones()
 })
 </script>
 
+
 <style scoped>
-.habitaciones-container {
-  padding: 20px;
-  background-color: #f8eee7;
-  min-height: 100vh;
-}
 
-/* Loading y error */
-.loading-text {
-  color: #94618e;
-  font-weight: bold;
+.filtro-container {
   margin-bottom: 20px;
-}
-.error-text {
-  color: red;
-  font-weight: bold;
-  margin-top: 20px;
+  text-align: center;
 }
 
-/* Tarjetas de habitación */
+.filtro-container input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 60%;
+  max-width: 400px;
+}
+
+.habitaciones-container {
+  min-height: 100vh;
+  padding: 30px;
+  background: url('/public/inicioCuatro.jpg') no-repeat center center fixed;
+  background-size: cover; 
+}
+
+.page-title {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  color: #fff;
+  text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
+}
+
+.habitaciones-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
 .habitacion-card {
-  background-color: #f4decb;
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 12px;
-  padding: 16px;
-  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  height: 100%;
+  transition: transform 0.3s, box-shadow 0.3s;
 }
+
 .habitacion-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
-/* Nombre y tipo */
-.habitacion-nombre {
-  font-size: 22px;
-  font-weight: 700;
-  color: #49274a;
-  display: flex;
-  justify-content: space-between;
-}
-.habitacion-tipo {
-  font-size: 16px;
-  font-weight: 500;
-  color: #49274a;
+.habitacion-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
 }
 
-/* Info rápida */
 .habitacion-info {
-  font-size: 16px;
-  color: #49274a;
-  margin: 12px 0;
-  line-height: 1.4;
-}
-.habitacion-info div {
-  display: flex;
-  align-items: center;
-  gap: 6px; /* separación entre icono y texto */
-  margin-bottom: 6px;
+  padding: 1rem;
+  text-align: center;
 }
 
+.habitacion-nombre {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
 
-/* Precio */
 .habitacion-precio {
-  font-size: 18px;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: #94618e;
+}
+
+.btn-guardar {
+  width: 100%;
+  padding: 0.7rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: #49274a;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 12px;
+  background: #94618e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
-/* Botón ver detalle */
-.detalle-btn {
-  background-color: #49274a;
-  color: #f8eee7 !important;
-  font-weight: bold;
-  border-radius: 8px;
-  padding: 6px 16px;
-}
-.detalle-btn:hover {
-  background-color: #94618e;
+.btn-guardar:hover {
+  background: #3498db;
 }
 
-/* Botón nueva habitación */
-.nueva-habitacion-btn {
-  display: inline-block;
-  margin-top: 25px;
-  background-color: #49274a;
-  color: #f8eee7;
-  font-weight: bold;
-  padding: 10px 20px;
-  border-radius: 8px;
-  text-decoration: none;
-  transition: background-color 0.3s;
-}
-.nueva-habitacion-btn:hover {
-  background-color: #94618e;
-}
-img{
-  height: 25px;
+.error {
+  text-align: center;
+  color: red;
+  margin-top: 1rem;
 }
 </style>

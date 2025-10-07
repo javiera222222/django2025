@@ -4,16 +4,16 @@ const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
-    host: '0.0.0.0',       // necesario para WSL2
-    hot: true,              // habilita HMR
+    host: '0.0.0.0',
+    hot: true,
     client: {
-      overlay: true,        // muestra errores en pantalla
+      overlay: true,
     },
     watchFiles: {
-      paths: ['src/**/*'],  // carpeta que queremos vigilar
+      paths: ['src/**/*'],
       options: {
-        usePolling: true,   // fuerza polling para WSL
-        interval: 500       // revisa cambios cada 0.5s
+        usePolling: true,
+        interval: 500
       }
     }
   }

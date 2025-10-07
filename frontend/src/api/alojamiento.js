@@ -26,6 +26,6 @@ export const deleteAlojamiento = async (id) => {
 }
 
 export const createAlojamiento = async (data) => {
-    const response = await api.post('backend/api/alojamiento/', data)
+    const response = await api.post('backend/api/alojamiento/', data,);
     return response.data
 }

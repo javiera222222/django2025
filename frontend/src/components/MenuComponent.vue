@@ -1,29 +1,23 @@
 <template>
   <VAppBar>
     <nav v-if="auth.access" class="menu">
-      <!-- DESKTOP -->
       <ul class="navegacion d-none d-md-flex">
-        <!-- Logo -->
         <li class="logo">
           <router-link to="/bienvenida">
             <img src="../../public/hotel.png" alt="Hotel Logo" class="logo-img" />
           </router-link>
         </li>
-
-        <!-- Botones -->
         <div class="botones">
           <li v-for="(item, i) in items" :key="i">
             <router-link :to="item.to">{{ item.title }}</router-link>
           </li>
         </div>
 
-        <!-- Cerrar sesión a la derecha -->
         <li class="cerrar-sesion">
           <button @click="logout">Cerrar sesión</button>
         </li>
       </ul>
 
-      <!-- MOBILE -->
       <div class="mobile-nav d-flex d-md-none" style="width:100%; align-items:center;">
         <router-link to="/bienvenida" class="logo" style="margin-right:auto;">
           <img src="../../public/hotel.png" alt="Hotel Logo" class="logo-img" />
@@ -84,7 +78,6 @@ const items = computed(() => {
 </script>
 
 <style>
-/* Contenedor general */
 .menu {
   background-color: #94618e;
   height: 140px;
@@ -94,7 +87,6 @@ const items = computed(() => {
   padding: 0 20px;
 }
 
-/* Lista principal */
 .navegacion {
   display: flex;
   align-items: center;
@@ -104,7 +96,6 @@ const items = computed(() => {
   list-style: none;
 }
 
-/* Logo a la izquierda */
 .logo {
   display: flex;
   align-items: center;
@@ -123,13 +114,13 @@ const items = computed(() => {
   display: block;
 }
 
-/* Botones pegados al logo */
+
 .botones {
   display: flex;
-  gap: 15px;  /* espacio entre botones */
+  gap: 15px;  
 }
 
-/* Botones + cerrar sesión estilo */
+
 .botones li a,
 .cerrar-sesion button {
   display: flex;
@@ -148,14 +139,13 @@ const items = computed(() => {
   transition: all 0.3s;
 }
 
-/* Hover */
+
 .botones li a:hover,
 .cerrar-sesion button:hover {
   background-color: #49274a;
   color: #f8eee7;
 }
 
-/* Cerrar sesión a la derecha */
 .cerrar-sesion {
   margin-left: auto;
 }

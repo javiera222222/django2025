@@ -8,7 +8,7 @@ class Alojamiento(models.Model):
     direccion = models.CharField(max_length=50)
     tipoAlojamiento = models.CharField(max_length=50, null=True)  
     ubicacion = models.CharField(max_length=50, null=True)  
-    user_id = models.ForeignKey( settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
+    propietario = models.ForeignKey( settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
 
 class Habitacion(models.Model):
    id= models.AutoField(primary_key=True)
@@ -16,32 +16,35 @@ class Habitacion(models.Model):
    tipoHabitacion = models.CharField(max_length=50, null=True)  
    camasSimples= models.IntegerField()
    camasDobles= models.IntegerField()
-   bañoPrivado=models.BooleanField()
+   banoPrivado=models.BooleanField()
    cocina =models.BooleanField()
    desayuno=models.BooleanField()
    precio= models.DecimalField(max_digits=10, decimal_places=2)
-   alojamiento_id = models.ForeignKey(Alojamiento, on_delete=models.CASCADE)  
-   imagen = models.ImageField( null=True, blank=True)  
-   usuario = models.ForeignKey( settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
+   alojamiento = models.ForeignKey(Alojamiento, on_delete=models.CASCADE)  
+   
 
-
+class Fotos (models.Model):
+  id= models.AutoField(primary_key=True)
+  habitacion= models.ForeignKey(Habitacion, on_delete=models.CASCADE)  
+  imagen= models.ImageField( null=True, blank=True)  
+ 
 class Reserva(models.Model):
    id= models.AutoField(primary_key=True)
    habitacion = models.ForeignKey(Habitacion, on_delete=models.CASCADE)
    cantNoches= models.IntegerField()
    desde = models.DateField()
    hasta = models.DateField()
-   checkIn= models.DateTimeField()
-   checkOut= models.DateTimeField()
-   nombreHuesped= models.CharField(max_length=50)
-   identificacion= models.CharField(max_length=50)
+   checkIn= models.DateTimeField(null=True, blank=True)
+   checkOut= models.DateTimeField(null=True, blank=True)
    precio= models.DecimalField(max_digits=10, decimal_places=2)
    pagado= models.BooleanField()
-
+   huesped = models.ForeignKey( settings.AUTH_USER_MODEL, on_delete=models.CASCADE,null=True, blank=True)
+   dni_huesped= models.CharField(max_length=50)
+   nombre_huesped = models.CharField(max_length=255, blank=True, null=True)
 
 class Pago(models.Model):
    id= models.AutoField(primary_key=True)
-   reserva_id = models.ForeignKey(Reserva, on_delete=models.CASCADE)
+   reserva = models.ForeignKey(Reserva, on_delete=models.CASCADE)
    fecha= models.DateTimeField()
    cantidad= models.DecimalField(max_digits=10, decimal_places=2)
    metodoDePago = models.CharField(max_length=50)   

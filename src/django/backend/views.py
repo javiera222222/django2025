@@ -1,86 +1,68 @@
-from django.shortcuts import render
-from django.http import HttpResponse,JsonResponse,Http404
-from django.views.decorators.csrf import csrf_exempt
-import json
-from datetime import date
-from django.template import Template,Context
-from django.template.loader import get_template
-from .models import Alojamiento,Habitacion,Reserva,Pago
-from .serializer import AlojamientoSerializer,HabitacionSerializer,ReservaSerializer,PagoSerializer
-from rest_framework import viewsets
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status 
-from rest_framework import mixins
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import  IsAuthenticated
+from rest_framework import  viewsets
+from .models import Alojamiento, Habitacion,Fotos, Reserva, Pago
+from .serializer import AlojamientoSerializer, HabitacionSerializer,FotosSerializer, ReservaSerializer, PagoSerializer
+from rest_framework import serializers
 
 
-
-class AlojamientoList(generics.ListCreateAPIView):
+class AlojamientoViewSet(viewsets.ModelViewSet):
     queryset =Alojamiento.objects.all()
     serializer_class = AlojamientoSerializer
-     
+    permission_classes = [IsAuthenticated]
 
-class AlojamientoDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset =Alojamiento.objects.all()
-    serializer_class=AlojamientoSerializer 
-      
+    
+    def perform_create(self, serializer):
+        serializer.save(propietario=self.request.user)
 
-class HabitacionList(generics.ListCreateAPIView):
-    queryset =Habitacion.objects.all()
+
+
+class HabitacionViewSet(viewsets.ModelViewSet):
     serializer_class = HabitacionSerializer
-    permission_classes=(IsAuthenticated,)  
+    permission_classes = [IsAuthenticated]
 
-class HabitacionDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset =Habitacion.objects.all()
-    serializer_class=HabitacionSerializer 
-    permission_classes=(IsAuthenticated,)   
+    def get_queryset(self):
+        user = self.request.user
+        if user.groups.filter(name="cliente").exists():
+            return Habitacion.objects.all()
+        return Habitacion.objects.filter(alojamiento__propietario=user)
+    def perform_create(self, serializer):
+        user = self.request.user
+        alojamiento = Alojamiento.objects.filter(propietario=user).first()
+        if alojamiento is None:
+            raise serializers.ValidationError("El usuario no tiene un alojamiento asociado.")
+        serializer.save(alojamiento=alojamiento)
+    
 
-class ReservaList(generics.ListCreateAPIView):
-    queryset =Reserva.objects.all()
-    serializer_class = ReservaSerializer
-    permission_classes=(IsAuthenticated,)  
+class FotosViewSet(viewsets.ModelViewSet):
+    serializer_class = FotosSerializer
+    queryset = Fotos.objects.all()
 
-class ReservaDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset =Reserva.objects.all()
-    serializer_class=ReservaSerializer 
-    permission_classes=(IsAuthenticated,)   
+    def get_queryset(self):
+        habitacion = self.request.query_params.get('habitacion')
+        if habitacion:
+            return Fotos.objects.filter(habitacion=habitacion)
+        return Fotos.objects.all()
 
 
 class ReservaViewSet(viewsets.ModelViewSet):
-    queryset = Reserva.objects.all()
     serializer_class = ReservaSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
 
-        # si es propietario -> solo reservas de sus alojamientos
-        if user.groups.filter(name="propietario").exists():
-            return Reserva.objects.filter(
-                habitacion__alojamiento_id__user_id=user
-            )
-
-        # si es cliente -> mostrar solo reservas que hizo él
         if user.groups.filter(name="cliente").exists():
-            # ⚠️ tu modelo Reserva no tiene campo usuario todavía,
-            # así que aquí no se puede filtrar por cliente.
-            # Si planeás agregarlo, quedaría así:
-            return Reserva.objects.filter(usuario=user)
+            return Reserva.objects.filter(huesped=user)
+        return Reserva.objects.filter(habitacion__alojamiento__propietario=user)
 
 
-        # si no cumple nada, no devolver nada
-        return Reserva.objects.none()
-
-class PagoList(generics.ListCreateAPIView):
-    queryset =Pago.objects.all()
+class PagoViewSet(viewsets.ModelViewSet):
     serializer_class = PagoSerializer
-    permission_classes=(IsAuthenticated,)  
+    permission_classes = [IsAuthenticated]
 
-class PagoDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset =Pago.objects.all()
-    serializer_class=PagoSerializer 
-    permission_classes=(IsAuthenticated,)   
+    def get_queryset(self):
+        user = self.request.user
+        
+        return Pago.objects.filter(reserva__habitacion__alojamiento__propietario=user)
 
-   
+

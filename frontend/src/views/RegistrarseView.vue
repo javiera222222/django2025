@@ -1,11 +1,9 @@
 <template>
   <div class="register-container">
-    <!-- Columna izquierda: formulario -->
     <div class="form-section">
       <v-card class="register-card pa-6" elevation="6">
         <h2 class="text-center mb-6">Registrarse</h2>
 
-        <!-- Formulario de registro -->
         <VForm v-if="!mostrarFormularioAlojamiento">
           <VTextField
             v-model="usuario.username"
@@ -50,7 +48,6 @@
           </p>
         </VForm>
 
-        <!-- Formulario de Alojamiento (solo propietarios) -->
         <VForm v-else>
           <h3 class="text-center mb-4">Crear Alojamiento</h3>
 
@@ -88,7 +85,6 @@
       </v-card>
     </div>
 
-    <!-- Columna derecha: imagen -->
     <div class="image-section"></div>
   </div>
 </template>
@@ -98,6 +94,7 @@ import { ref } from "vue";
 import { registrarUsuario } from "../api/registrarse.js";
 import { createAlojamiento } from "../api/alojamiento.js";
 import { useAuthStore } from '../stores/auth'
+import router from '../router'
 
 const auth = useAuthStore()
 
@@ -129,11 +126,11 @@ const alojamiento = ref({
 const registrar = async () => {
   try {
     await registrarUsuario(usuario.value);
-
-    if (usuario.value.grupo === "cliente") {
-      await auth.login(usuario.value.username, usuario.value.password) // 👈 lo manda al inicio como usuario ya registrado
-    } else if (usuario.value.grupo === "propietario") {
-      mostrarFormularioAlojamiento.value = true;
+    await auth.login(usuario.value.username, usuario.value.password)
+    if (usuario.value.grupo === "propietario") {
+       mostrarFormularioAlojamiento.value = true} 
+    else if(usuario.value.grupo === "cliente"){
+      router.push('/Bienvenida')
     }
   } catch (err) {
     alert("Error al crear el usuario");
@@ -142,12 +139,8 @@ const registrar = async () => {
 
 const guardarAlojamiento = async () => {
   try {
-     const datos = {
-      ...alojamiento.value,   // copia todos los campos del alojamiento
-      user_id: usuario.value.id // agrega el user_id
-    };
-    await createAlojamiento(datos);
-    await auth.login(usuario.value.username, usuario.value.password); // 👈 también lo manda al inicio
+    await createAlojamiento(alojamiento.value);
+    router.push('/Bienvenida')
   } catch (error) {
     console.error("Error al guardar alojamiento:", error);
     alert("Error al crear el alojamiento");
@@ -161,42 +154,38 @@ const guardarAlojamiento = async () => {
   height: 100vh;
 }
 
-/* Izquierda: formulario */
 .form-section {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #49274a; /* violeta oscuro */
+  background-color: #94618e ; 
 }
 
 .register-card {
   width: 90%;
   max-width: 400px;
-  background-color: #f8eee7; /* color claro */
+  background-color:  rgba(255, 255, 255, 0.9);
   color: #49274a;
 }
 
-/* Botón personalizado */
 .custom-btn {
-  background-color: #94618e !important; /* violeta medio */
-  color: #f8eee7 !important; /* texto claro */
+  background-color: #94618e !important;
+  color: #f8eee7 !important; 
   font-weight: bold;
   border-radius: 8px;
 }
 
 .custom-btn:hover {
-  background-color: #49274a !important; /* más oscuro al pasar */
+  background-color: #94618e !important;
 }
 
-/* Labels más legibles */
 .v-input label {
   font-size: 1rem;
   font-weight: 600;
   color: #49274a !important;
 }
 
-/* Link de inicio de sesión */
 .link {
   color: #94618e;
   font-weight: bold;
@@ -206,14 +195,12 @@ const guardarAlojamiento = async () => {
   text-decoration: underline;
 }
 
-/* Derecha: imagen */
 .image-section {
   flex: 1;
   background: url(../../public/hotelregistrarse.jpg) no-repeat center center;
   background-size: cover;
 }
 
-/* Responsive: ocultar imagen en pantallas chicas */
 @media (max-width: 768px) {
   .image-section {
     display: none;

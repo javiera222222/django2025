@@ -1,27 +1,28 @@
 <template>
   <div class="pagos-container">
-    <!-- Botón que abre el calendario -->
-   <VBtn color="primary" @click="mostrarCalendario = true">
-  {{ formatearFecha(fechaSeleccionada) }}
-</VBtn>
+    <div class="btn-calendario">
+      <VBtn color="primary" @click="mostrarCalendario = true">
+        📅 {{ formatearFecha(fechaSeleccionada) }}
+      </VBtn>
+    </div>
 
-<VDialog v-model="mostrarCalendario" max-width="350">
-  <VCard>
-    <VDatePicker
-      v-model="fechaSeleccionada"
-      locale="es"
-      :show-current="true"
-      @update:model-value="filtrarPagos"
-    />
-    <VCardActions>
-      <VBtn text color="primary" @click="mostrarCalendario = false">Cerrar</VBtn>
-    </VCardActions>
-  </VCard>
-</VDialog>
+    <VDialog v-model="mostrarCalendario" max-width="350">
+      <VCard class="card-calendario">
+        <VDatePicker
+          v-model="fechaSeleccionada"
+          locale="es"
+          :show-current="true"
+          @update:model-value="filtrarPagos"
+        />
+        <VCardActions class="acciones">
+          <VBtn text color="primary" @click="mostrarCalendario = false">
+            Cerrar
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
 
-
-    <!-- Tabla de pagos -->
-    <v-table class="ma-4 pa-4">
+    <v-table class="tabla-pagos">
       <thead>
         <tr>
           <th>ID</th>
@@ -34,18 +35,18 @@
       <tbody>
         <tr v-for="pago in pagosFiltrados" :key="pago.id">
           <td>{{ pago.id }}</td>
-          <td>{{ pago.reserva_id }}</td>
+          <td>#{{ pago.reserva }}</td>
           <td>{{ formatearFecha(pago.fecha) }}</td>
-          <td>{{ pago.cantidad }}</td>
-          <td>{{ pago.metodoDePago }}</td>
+          <td class="cantidad">${{ pago.cantidad }}</td>
+          <td><span class="badge-metodo">{{ pago.metodoDePago }}</span></td>
         </tr>
         <tr v-if="pagosFiltrados.length === 0">
-          <td colspan="5">No hay pagos para la fecha seleccionada.</td>
+          <td colspan="5" class="no-pagos">❌ No hay pagos para la fecha seleccionada.</td>
         </tr>
       </tbody>
     </v-table>
 
-    <p v-if="error" style="color: red">{{ error }}</p>
+    <p v-if="error" class="error">{{ error }}</p>
   </div>
 </template>
 
@@ -61,8 +62,6 @@ const mostrarCalendario = ref(false)
 const error = ref(null)
 const loading = ref(false)
 
-
-// Formatear fecha a formato legible
 const formatearFecha = (fecha) => {
   if (!fecha) return ""
   return new Date(fecha).toLocaleDateString("es-ES", {
@@ -72,7 +71,6 @@ const formatearFecha = (fecha) => {
   })
 }
 
-// Filtrar pagos por fecha seleccionada
 const filtrarPagos = () => {
   pagosFiltrados.value = pagos.value.filter((pago) => {
     const pagoFecha = new Date(pago.fecha)
@@ -86,19 +84,18 @@ const filtrarPagos = () => {
   })
 }
 
-
-// Simulación de carga de pagos desde la API
 const cargarPagos = async () => {
- loading.value = true
-    error.value = null
-    pagos.value = []
-    try {
-        pagos.value = await getpagos()
-    } catch (e) {
-        error.value = 'Error al cargar pagos'
-    } finally {
-        loading.value = false
-    }
+  loading.value = true
+  error.value = null
+  pagos.value = []
+  try {
+    pagos.value = await getpagos()
+    filtrarPagos()
+  } catch (e) {
+    error.value = "Error al cargar pagos"
+  } finally {
+    loading.value = false
+  }
 }
 
 onMounted(() => {
@@ -108,51 +105,103 @@ onMounted(() => {
 
 <style scoped>
 .pagos-container {
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8eee7, #f4decb);
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   max-width: 900px;
-  margin: auto;
-  background-color: #0A1828; /* azul oscuro */
-  color: #F9F9F9; /* texto claro */
-  padding: 20px;
-  border-radius: 12px;
+  margin: 2rem auto;
 }
 
-/* Botones */
-.v-btn {
-  background-color: #BFA181 !important; /* dorado */
-  color: #0A1828 !important; /* contraste */
-  font-weight: bold;
+.btn-calendario {
+  text-align: center;
+  margin-bottom: 1.5rem;
 }
-.v-btn:hover {
-  background-color: #178582 !important; /* turquesa */
+
+.btn-calendario .v-btn {
+  font-weight: bold;
+  font-size: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.btn-calendario .v-btn:hover {
+  transform: translateY(-2px);
+  background-color: #94618e !important;
   color: #fff !important;
 }
 
-/* Tabla */
-.v-table thead {
-  background-color: #0A1828;
+.card-calendario {
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  transition: transform 0.2s;
 }
-.v-table thead th {
-  color: #BFA181;
-  font-weight: bold;
-  text-transform: uppercase;
-}
-.v-table tbody tr:nth-child(even) {
-  background-color: #111e36; /* tono más claro del azul */
-}
-.v-table tbody td {
-  color: #F9F9F9;
+.card-calendario:hover {
+  transform: scale(1.02);
 }
 
-/* Cantidad */
-.v-table tbody td:nth-child(4) {
-  font-weight: bold;
-  color: #BFA181;
+.tabla-pagos {
+  width: 100%;
+  margin: 1rem auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
-/* Mensaje vacío */
-.empty-msg {
+.tabla-pagos th {
+  background: #94618e;
+  color: #fff;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.tabla-pagos td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #f8eee7;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.tabla-pagos tr:nth-child(even) {
+  background-color: #fff7f2;
+}
+
+.tabla-pagos tr:hover {
+  background-color: #fbe8d6;
+  transform: scale(1.01);
+}
+
+.cantidad {
+  font-weight: bold;
+  color: #16a34a;
+}
+
+.badge-metodo {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fde2ff, #f4decb);
+  color: #49274a;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  font-size: 0.85rem;
+}
+
+.no-pagos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  font-style: italic;
+  color: #94618e;
+  padding: 1rem;
+}
+
+.error {
+  color: red;
   text-align: center;
-  padding: 16px;
-  color: #BFA181;
+  margin-top: 1rem;
 }
 </style>

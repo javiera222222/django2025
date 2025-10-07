@@ -1,24 +1,30 @@
+/* eslint-disable vue/multi-word-component-names */
+
 import { createApp } from 'vue'
 import App from './App.vue'
 import { createPinia } from 'pinia'
 import router from './router'
+import './assets/styles.css'
 
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+import '@mdi/font/css/materialdesignicons.css'
 
-// Crear Vuetify
+import PrimeVue from 'primevue/config';
+import Galleria from 'primevue/galleria';
+
 const vuetify = createVuetify({
     components,
     directives,
 })
 
-// Crear y configurar la app
 const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 app.use(vuetify)
+app.use(PrimeVue);
 
-// Montar la app
 app.mount('#app')
+app.component('Galleria', Galleria);

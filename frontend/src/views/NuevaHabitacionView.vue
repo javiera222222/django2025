@@ -1,86 +1,95 @@
 <template>
-  <label>Nombre:
-    <input v-model="habitacion.nombre" />
-  </label>
+  <div class="form-container">
+    <form class="habitacion-form" @submit.prevent="crearHabitacion">
+      <h3 class="form-title">Nueva Habitación</h3>
 
-  <label>Precio:
-    <input v-model.number="habitacion.precio" type="number" />
-  </label>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input v-model="habitacion.nombre" placeholder="Ej: Suite Deluxe" />
+        </div>
 
-  <label>Tipo:
-    <input v-model="habitacion.tipoHabitacion_id" />
-  </label>
+        <div class="form-group">
+          <label>Precio</label>
+          <input v-model.number="habitacion.precio" type="number" min="0" />
+        </div>
 
-  <label>Camas simples:
-    <input v-model.number="habitacion.camasSimples" type="number" />
-  </label>
+        <div class="form-group">
+          <label>Tipo</label>
+          <input v-model="habitacion.tipoHabitacion" placeholder="Ej: 1" />
+        </div>
 
-  <label>Camas dobles:
-    <input v-model.number="habitacion.camasDobles" type="number" />
-  </label>
+        <div class="form-group">
+          <label>Camas simples</label>
+          <input v-model.number="habitacion.camasSimples" type="number" min="0" />
+        </div>
 
-  <label>Baño privado:
-    <input v-model="habitacion.bañoPrivado" type="checkbox" />
-  </label>
+        <div class="form-group">
+          <label>Camas dobles</label>
+          <input v-model.number="habitacion.camasDobles" type="number" min="0" />
+        </div>
 
-  <label>Cocina:
-    <input v-model="habitacion.cocina" type="checkbox" />
-  </label>
+        <div class="form-group checkbox">
+          <label>
+            <input v-model="habitacion.banoPrivado" type="checkbox" />
+            Baño privado
+          </label>
+        </div>
 
-  <label>Desayuno:
-    <input v-model="habitacion.desayuno" type="checkbox" />
-  </label>
+        <div class="form-group checkbox">
+          <label>
+            <input v-model="habitacion.desayuno" type="checkbox" />
+            Desayuno
+          </label>
+        </div>
 
-  <label>Alojamiento ID:
-    <input v-model="habitacion.alojamiento_id" />
-  </label>
+        <div class="form-group checkbox">
+          <label>
+            <input v-model="habitacion.cocina" type="checkbox" />
+            Cocina
+          </label>
+        </div>
 
-  <!-- Imagen -->
- 
+        <div class="form-group">
+          <label>Imágenes de la habitación</label>
+          <input type="file" multiple @change="handleFileChange" />
+        </div>
+      </div>
 
-  <label>Imagen de la habitación:
-  <input type="file" @change="handleFileChange" />
-</label>
+      <div v-if="previews.length" class="preview-list">
+        <p>Vista previa:</p>
+        <div v-for="(src, i) in previews" :key="i" class="preview-row">
+          <img :src="src" alt="Vista previa" class="preview-img" />
+        </div>
+      </div>
 
-
-  <div v-if="preview">
-    <p>Vista previa:</p>
-    <img :src="preview" alt="Vista previa" style="max-width: 200px;" />
+      <button type="submit" class="btn-guardar">Guardar habitación</button>
+      <p v-if="error" class="error">{{ error }}</p>
+    </form>
   </div>
-
-  <button @click="crearHabitacion">Guardar datos</button>
-
-  <p v-if="error" style="color: red">{{ error }}</p>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { createhabitacion } from "../api/habitacion.js"
+import { createfoto } from "../api/fotos.js"
 import { useRouter } from 'vue-router'
 
-
-const archivoImagen = ref(null);
-// Cuando el usuario selecciona un archivo
-const handleFileChange = (event) => {
-  archivoImagen.value = event.target.files[0]; // guardamos el archivo
-};
 const router = useRouter()
 const error = ref(null)
+const archivosImagen = ref([])
+const previews = ref([])
+
 const habitacion = ref({
   nombre: '',
-  precio: 0,
-  tipoHabitacion_id: 1,
+  tipoHabitacion: 1,
   camasSimples: 0,
   camasDobles: 0,
-  bañoPrivado: false,
+  banoPrivado: false,
   cocina: false,
   desayuno: false,
-  alojamiento_id: 1,
+  precio: 0,
 })
-const imagenFile = ref(null)
-const preview = ref(null)
-
-
 
 const crearHabitacion = async () => {
   try {
@@ -88,15 +97,154 @@ const crearHabitacion = async () => {
     for (const key in habitacion.value) {
       formData.append(key, habitacion.value[key])
     }
-    if (imagenFile.value) {
-      formData.append("imagen", imagenFile.value)
-    }
 
-    const habitacionCreada = await createhabitacion(formData, true) 
-    router.push(`/habitacion/${habitacionCreada.id}`)
+    const habitacionCreada = await createhabitacion(formData, true)
+    const habitacionId = habitacionCreada.id
+    
+    await subirFotos(habitacionId)
+    router.push(`/habitacion/${habitacionId}`)
+    console.log("ID de la nueva habitación:", habitacionId)
   } catch (err) {
+    console.log(err.response?.data)
     error.value = 'Error al crear la habitación'
   }
 }
+
+const subirFotos = async (habitacionId) => {
+  for (const file of archivosImagen.value) {
+    const formData = new FormData()
+    formData.append("habitacion", habitacionId)
+    formData.append("imagenes", file)
+
+    try {
+      await createfoto(formData, true)
+    } catch (error) {
+      console.error("Error al subir fotos", error.response?.data)
+    }
+  }
+}
+
+const handleFileChange = (event) => {
+  archivosImagen.value = Array.from(event.target.files)
+  previews.value = archivosImagen.value.map(file => URL.createObjectURL(file))
+}
 </script>
 
+
+
+
+
+
+<style scoped>
+.form-container {
+  min-height: 100vh;
+  padding: 30px;
+  background: url('/public/inicioCuatro.jpg') no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.habitacion-form {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 700px;
+}
+
+.form-title {
+  margin-bottom: 1rem;
+  font-size: 1.4rem;
+  font-weight: 600;
+  text-align: center;
+  color: #94618e;
+}
+
+.form-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+  color: #94618e;
+}
+
+.form-group input[type='text'],
+.form-group input[type='number'],
+.form-group input[type='date'],
+.form-group input[type='file'] {
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  outline: none;
+  background: #fff;
+}
+
+.form-group input:focus {
+  border-color: #4cafef;
+  box-shadow: 0 0 4px rgba(76, 175, 239, 0.4);
+}
+
+.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+
+.preview-list {
+  margin-top: 1rem;
+}
+.preview-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.preview-img {
+  width: 180px;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+}
+
+
+.preview-container {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.btn-guardar {
+  margin-top: 1.5rem;
+  width: 100%;
+  padding: 0.9rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #4cafef;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-guardar:hover {
+  background: #3498db;
+}
+
+.error {
+  color: red;
+  margin-top: 1rem;
+  text-align: center;
+}
+</style>

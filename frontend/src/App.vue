@@ -10,10 +10,12 @@
   <VMain>
   <RouterView></RouterView>
 </VMain>
+<FooterComponent/>
   </VApp>
 </template>
 
 <script setup>
+import FooterComponent from './components/FooterComponent.vue';
 import MenuComponent from './components/MenuComponent.vue'
 import { useAuthStore } from './stores/auth'
 const auth = useAuthStore()

@@ -1,94 +1,98 @@
 <template>
   <div class="reserva-container">
-    <p v-if="loading" class="loading-text">Cargando reservas...</p>
+    <p v-if="loading">Cargando reserva...</p>
 
-    <div v-else-if="reserva" class="card">
-      <!-- Vista de solo lectura -->
-      <div v-if="!editar">
-        <h2 class="card-title">Reserva #{{ reserva.id }}</h2>
-        <p><strong>Noches:</strong> {{ reserva.cantNoches }}</p>
-        <p><strong>Desde:</strong> {{ reserva.desde }}</p>
-        <p><strong>Hasta:</strong> {{ reserva.hasta }}</p>
-        <p><strong>Check In:</strong> {{ reserva.checkIn }}</p>
-        <p><strong>Check Out:</strong> {{ reserva.checkOut }}</p>
-        <p><strong>Huésped:</strong> {{ reserva.nombreHuesped }}</p>
-        <p><strong>Identificación:</strong> {{ reserva.identificacion }}</p>
-        <p><strong>Precio:</strong> ${{ reserva.precio }}</p>
-        <p>
-          <strong>Pagado:</strong>
-          <span :class="reserva.pagado ? 'pagado' : 'pendiente'">
-            {{ reserva.pagado ? 'Sí' : 'No' }}
+    <div v-else-if="reserva" class="reserva-card">
+
+      <div class="resumen">
+        <div class="resumen-item">
+          <h3>{{ reserva.cantNoches }}</h3>
+          <p>Noches</p>
+        </div>
+        <div class="resumen-item">
+          <h3>${{ reserva.precio }}</h3>
+          <p>Precio</p>
+        </div>
+        <div class="resumen-item">
+          <span :class="['badge', reserva.pagado ? 'badge-success' : 'badge-danger']">
+            {{ reserva.pagado ? 'Pagado' : 'Pendiente' }}
           </span>
-        </p>
-
-        <div class="acciones">
-          <button @click="editar = true" class="btn">Editar</button>
-          <button @click="eliminarReserva" class="btn danger">Eliminar</button>
-          <button @click="pagar = true" class="btn success">Registrar pago</button>
+          <p>Estado</p>
         </div>
       </div>
 
-      <!-- Formulario de edición -->
-      <div v-else class="formulario">
-        <h2 class="card-title">Editar Reserva</h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <strong>Check In</strong>
+          <p>{{ formatFecha(reserva.checkIn) }}</p>
+        </div>
+        <div class="timeline-line"></div>
+        <div class="timeline-item">
+          <strong>Check Out</strong>
+          <p>{{ formatFecha(reserva.checkOut) }}</p>
+        </div>
+      </div>
 
-        <label>Cantidad de noches
-          <input v-model="reserva.cantNoches" type="number" />
-        </label>
+      <div v-if="!editar" class="detalles">
+        <p><strong>ID Reserva:</strong> {{ reserva.id }}</p>
+        <p><strong>Desde:</strong> {{ formatFecha(reserva.desde) }}</p>
+        <p><strong>Hasta:</strong> {{ formatFecha(reserva.hasta) }}</p>
+        <p><strong>Huésped:</strong> {{ reserva.huesped }}</p>
+        <p><strong>DNI:</strong> {{ reserva.dni_huesped }}</p>
+      </div>
 
-        <label>Fecha de entrada
+      <div class="acciones" v-if="!editar">
+        <button class="btn success" @click="editar = true">✏️ Editar</button>
+        <button class="btn danger" @click="eliminarReserva">🗑️ Eliminar</button>
+        <button 
+          v-if="auth.grupos.includes('propietario') && !reserva.pagado" 
+          class="btn success" 
+          @click="pagar = true">
+          💳 Registrar pago
+        </button>
+      </div>
+
+      <div v-if="editar" class="editar-form">
+        <div class="form-group">
+          <label>Cantidad de noches:</label>
+          <input v-model="reserva.cantNoches" />
+        </div>
+
+        <div class="form-group">
+          <label>Fecha de entrada:</label>
           <input type="date" v-model="reserva.desde" />
-        </label>
+        </div>
 
-        <label>Fecha de salida
+        <div class="form-group">
+          <label>Fecha de salida:</label>
           <input type="date" v-model="reserva.hasta" />
+         
+          <div v-if="auth.grupos.includes('propietario')">
+          <div class="form-group">
+            
+            <label>Check-in</label>
+            <input type="datetime-local" v-model="reserva.checkIn" placeholder="..."/>
+          </div>
+
+          <div class="form-group">
+            <label>Check-out</label>
+            <input type="datetime-local" v-model="reserva.checkOut" placeholder="..." />
+          </div>
+        </div></div>
+
+        <button class="btn success" @click="editarReserva">Guardar edición</button>
+      </div>
+
+      <div v-if="pagar" class="pago-card">
+        <label>Método de pago:
+          <input v-model="pago.metodoDePago" />
         </label>
-
-        <div v-if="auth.grupos.includes('propietario')">
-          <label>Nombre huésped
-            <input v-model="reserva.nombreHuesped" />
-          </label>
-          <label>ID huésped
-            <input v-model="reserva.identificacion" />
-          </label>
-          <label>Precio
-            <input type="number" v-model="reserva.precio" />
-          </label>
-          <label>Pagado
-            <select v-model="reserva.pagado">
-              <option :value="true">Sí</option>
-              <option :value="false">No</option>
-            </select>
-          </label>
-          <label>Check in
-            <input v-model="reserva.checkIn" type="datetime-local" />
-          </label>
-          <label>Check out
-            <input v-model="reserva.checkOut" type="datetime-local" />
-          </label>
-        </div>
-
-        <div class="acciones">
-          <button @click="editarReserva" class="btn success">Guardar</button>
-          <button @click="editar = false" class="btn secondary">Cancelar</button>
-        </div>
+        <button class="btn success" @click="GuardarPago">Guardar Pago</button>
       </div>
+
     </div>
 
-    <!-- Formulario de pago -->
-    <div v-if="pagar" class="card pago-card">
-      <h2 class="card-title">Registrar Pago</h2>
-      <label>Método de pago:
-        <input v-model="pago.metodoDePago" />
-      </label>
-      <div class="acciones">
-        <button @click="GuardarPago" class="btn success">Guardar</button>
-        <button @click="pagar = false" class="btn secondary">Cancelar</button>
-      </div>
-    </div>
-
-    <!-- Errores -->
-    <p v-if="error" class="error-text">{{ error }}</p>
+    <p v-if="error" style="color: red">{{ error }}</p>
   </div>
 </template>
 
@@ -102,7 +106,6 @@ import { useRoute, useRouter } from 'vue-router'
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
-
 const reserva = ref(null)
 const loading = ref(false)
 const error = ref(null)
@@ -110,11 +113,20 @@ const editar = ref(false)
 const pagar = ref(false)
 
 const pago = ref({
-  reserva_id: route.params.id,
+  reserva: route.params.id,
   fecha: new Date().toISOString().slice(0, 19),
   cantidad: 0,
   metodoDePago: "",
 })
+
+const formatFecha = (fecha) => {
+ if (!fecha) return "—";
+  return new Date(fecha).toLocaleDateString('es-AR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}
 
 const cargarReserva = async () => {
   loading.value = true
@@ -135,14 +147,14 @@ onMounted(() => {
 const editarReserva = async () => {
   try {
     await updateReserva(reserva.value.id, reserva.value)
-    editar.value = false
+    editar.value = false   
   } catch (err) {
-    error.value = 'Error al actualizar la reserva'
+    console.error('Error al actualizar la reserva:', err)
   }
 }
 
 const eliminarReserva = async () => {
-  if (confirm('¿Estás segura/o de eliminar esta reserva?')) {
+  if (confirm('¿Seguro deseas eliminar esta reserva?')) {
     try {
       await deleteReserva(route.params.id)
       router.push('/Reservas')
@@ -154,109 +166,98 @@ const eliminarReserva = async () => {
 
 const GuardarPago = async () => {
   pago.value.cantidad = reserva.value.precio
+  delete pago.value.id
   try {
     await createpago(pago.value)
+    reserva.value.pagado = true   
     pagar.value = false
   } catch (err) {
-    error.value = 'Error al guardar la información de pago'
+    error.value = 'Error al guardar el pago'
   }
 }
 </script>
 
 <style scoped>
 .reserva-container {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 15px;
-  font-family: 'Poppins', sans-serif;
-}
-
-.loading-text {
-  text-align: center;
-  font-size: 18px;
-}
-
-.error-text {
-  color: red;
-  margin-top: 10px;
-  text-align: center;
-}
-
-.card {
-  background: #f8eee7;
-  border: 2px solid #94618e;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
-}
-
-.card-title {
-  font-size: 22px;
-  margin-bottom: 15px;
-  color: #49274a;
-}
-
-label {
-  display: block;
-  margin-bottom: 12px;
-  font-weight: 500;
-}
-
-input, select {
-  width: 100%;
-  padding: 8px;
-  margin-top: 4px;
-  border: 1px solid #94618e;
-  border-radius: 6px;
-}
-
-.acciones {
-  margin-top: 15px;
+  min-height: 100vh;
+  padding: 30px;
+  background: url('/public/inicioCuatro.jpg') no-repeat center center fixed;
+  background-size: cover;
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
 }
 
+.reserva-card {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 25px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 800px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.resumen {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+.resumen-item { text-align: center; }
+
+.timeline {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+}
+.timeline-item { flex: 1; text-align: center; }
+.timeline-line {
+  width: 80px;
+  height: 4px;
+  background: #94618e;
+  margin: 0 10px;
+  border-radius: 2px;
+}
+
+.badge {
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: bold;
+}
+.badge-success { background: #28a745; color: white; }
+.badge-danger { background: #dc3545; color: white; }
+
+.acciones { display: flex; gap: 10px; margin: 15px 0; }
 .btn {
   padding: 8px 14px;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
-  transition: 0.3s;
+}
+.btn.success { background: #94618e; color: white; }
+.btn.danger { background: #dc3545; color: white; }
+
+.editar-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 15px;
+}
+.editar-form .form-group {
+  display: flex;
+  flex-direction: column;
+}
+.editar-form label {
+  font-weight: 500;
+  margin-bottom: 4px;
 }
 
-.btn.success {
-  background-color: #94618e;
-  color: #f8eee7;
-}
-.btn.success:hover {
-  background-color: #49274a;
-}
-
-.btn.danger {
-  background-color: #d9534f;
-  color: white;
-}
-.btn.danger:hover {
-  background-color: #b52b27;
-}
-
-.btn.secondary {
-  background-color: #ccc;
-  color: #333;
-}
-.btn.secondary:hover {
-  background-color: #999;
-}
-
-.pagado {
-  color: green;
-  font-weight: 600;
-}
-.pendiente {
-  color: red;
-  font-weight: 600;
+.pago-card {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  background: #fff5f8;
+  border-left: 6px solid #94618e;
 }
 </style>

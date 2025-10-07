@@ -1,19 +1,16 @@
 
-
-
 <template>
   <div class="bienvenida-con-nav">
-    <!-- Nav superior izquierda -->
+ 
     <nav class="menu-superior">
       <li v-if="!auth.access"><router-link to="/Login">Iniciar Sesión</router-link></li>
       <li v-if="!auth.access"><router-link to="/Registrarse">Registrarse</router-link></li>
-      <li v-if="auth.access"><router-link to="/Alojamientos">Alojamientos</router-link></li>
-    </nav>
-
-    <!-- Contenedor principal -->
+   </nav>
+ 
     <div class="bienvenida">
-      <!-- Texto izquierdo -->
+    
       <div class="texto">
+         <h1 class="titulo-principal">Tu Alojamiento</h1>
         <transition name="fade" mode="out-in">
           <div :key="frases[fraseActual]" class="frase">
             <h1>{{ frases[fraseActual] }}</h1>
@@ -22,10 +19,9 @@
         <p>
           Encontrá alojamientos que se adapten a tu personalidad.  
           Desde <strong>cabañas</strong>, <strong>hostels</strong> y <strong>hoteles</strong>,  
-          hasta lugares unicos en cualquier parte del mundo 🌍.
+          hasta lugares unicos en cualquier parte del mundo .
         </p>
 
-        <!-- Iconos visuales debajo del texto -->
         <div class="iconos">
           <div class="icono"><img src="../../public/cabana.png" alt="cabana Logo" class="logo-img" /><p>Cabañas</p></div>
           <div class="icono"><img src="../../public/5-estrellas.png" alt="hotel Logo" class="logo-img" /><p>Hoteles</p></div>
@@ -34,7 +30,7 @@
           </div>
       </div>
 
-      <!-- Carrusel derecho -->
+      
       <div class="carrusel">
         <transition name="fade-img" mode="out-in">
           <img
@@ -44,7 +40,6 @@
           />
         </transition>
 
-        <!-- Indicadores -->
         <div class="indicadores">
           <span
             v-for="(img, index) in imagenes"
@@ -101,7 +96,6 @@ onUnmounted(() => {
 </script>
 
 <style>
-/* Nav superior izquierda */
 .menu-superior {
   position: absolute;
   top: 20px;
@@ -126,23 +120,21 @@ onUnmounted(() => {
   color: #f8eee7;
 }
 
-/* Contenedor principal */
 .bienvenida {
   display: flex;
   height: 100vh;
-  background-color: #f8eee7;
+  background: rgba(255, 255, 255, 0.9);
   overflow: hidden;
 }
 
-/* ---- Texto ---- */
 .texto {
   flex: 1;
-  background-color: #f4decb;
+  background-color:rgba(255, 255, 255, 0.9);
   padding: 60px;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* ya estaba: centra verticalmente */
-  align-items: center;     /* nuevo: centra horizontalmente */
+  justify-content: center; 
+  align-items: center;     
   text-align: center; 
 }
 
@@ -158,7 +150,6 @@ onUnmounted(() => {
   line-height: 1.6;
 }
 
-/* Iconos visuales */
 .iconos {
   display: flex;
   gap: 20px;
@@ -180,7 +171,6 @@ onUnmounted(() => {
   margin-bottom: 5px;
 }
 
-/* ---- Carrusel ---- */
 .carrusel {
   flex: 1;
   position: relative;
@@ -191,7 +181,6 @@ onUnmounted(() => {
   overflow: hidden;
 }
 
-/* overlay degradado */
 .carrusel::after {
   content: "";
   position: absolute;
@@ -208,7 +197,6 @@ onUnmounted(() => {
   border-left: 8px solid #f4decb;
 }
 
-/* ---- Indicadores ---- */
 .indicadores {
   position: absolute;
   bottom: 20px;
@@ -232,7 +220,7 @@ onUnmounted(() => {
   transform: scale(1.4);
 }
 
-/* ---- Fade animación para frases ---- */
+
 .fade-enter-active, .fade-leave-active {
   transition: opacity 1s;
 }
@@ -240,7 +228,6 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-/* ---- Fade animación para imagen ---- */
 .fade-img-enter-active, .fade-img-leave-active {
   transition: opacity 1s;
 }
@@ -248,7 +235,7 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-/* ---- Responsive ---- */
+
 @media (max-width: 768px) {
   .bienvenida {
     flex-direction: column;
@@ -274,4 +261,12 @@ onUnmounted(() => {
     height: 30px;
   }
 }
+
+.titulo-principal {
+  font-size: 50px;
+  color: #49274a;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
 </style>
